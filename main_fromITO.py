@@ -4,12 +4,19 @@ import Tkinter as tk
 import ttk
 import IP_in_out
 from suds.client import Client
-from smpplib import gsm
 import organizationFile
-import smpplib
 import sys
 import sendSMS
 import os
+import base64
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
 reload(sys)
 sys.setdefaultencoding("ISO-8859-1")
 
@@ -25,15 +32,6 @@ global list
 long_suffix = ':8998/PTX/Provisioning?wsdl'
 short_suffix = ':8080/MTWebShortProvisioning/MTSProvisioning.asmx?wsdl'
 
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 def GetAuthenticationLong(URL,username,Password):
     clientShort = Client(URL + short_suffix)
@@ -83,7 +81,7 @@ def sendDetails():
             IPserver=IP_in_out.options(getServers_id_ip(user))
 
             #TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' +IPserver
+            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' +IPserver
             #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             #sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
@@ -132,7 +130,7 @@ def sendBoth():
             msg1 = "Download from here: " + org
 
             # TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
+            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' + IPserver
             # msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg1)
             sendSMS.send(api_key, api_secret, PhoneNumber, msg2)
@@ -365,6 +363,7 @@ def main(root):
    popupMenu = OptionMenu(mainframe, list, *choices)
    Label(mainframe, text="Choose organization").grid(row=1, column=1)
    popupMenu.grid(row=2, column=1)
+   popupMenu.config(width=15)
 
    T = Text(root_ITO, height=10, width=80, bg="snow")
    T.pack( padx=5, pady=5, fill="none", expand=True)

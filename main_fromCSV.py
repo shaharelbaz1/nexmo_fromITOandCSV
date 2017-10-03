@@ -7,28 +7,29 @@ import IP_in_out
 import organizationFile
 import sys
 import sendSMS
-from tkFileDialog import askopenfilename, askdirectory
+from tkFileDialog import askopenfilename
+import main
 import os
+import base64
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
 
-    return os.path.join(base_path, relative_path)
-
-def uplodeFile():
+def uplodeFile(root):
     global file, b_file
     filesName = askopenfilename()
     file_path = filesName
     if (file_path == ""):
         sys.exit(0)
     file = filesName
+    # L_file=Label(root_CSV, bg="gray94", text="file", font = "Helvetica 10 bold italic")
+    # L_file.pack(side="top",expand=True, anchor="w")
     b_file.config(text=file, width=40)
     T.insert(END,'file upload\n')
+    openNewWindow(root)
 
 def selectAll(checkButtons):
     global x
@@ -85,7 +86,7 @@ def sendDetails():
             IPserver = user[3]
 
             #TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' +IPserver
+            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' +IPserver
             #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             #sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
@@ -132,7 +133,7 @@ def sendBoth():
             msg1 = "Download from here: " + org
 
             # TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
+            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' + IPserver
             # msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg1)
             sendSMS.send(api_key, api_secret, PhoneNumber, msg2)
@@ -297,9 +298,15 @@ def main(root):
    popupMenu = OptionMenu(mainframe, list, *choices)
    Label(mainframe, text="Choose organization").grid(row=1, column=1)
    popupMenu.grid(row=2, column=1)
+   popupMenu.config(width=15)
 
-   b_file = Button(root_CSV, text='upload file', height=1, width=20, bg="turquoise", command=lambda :uplodeFile())
+   b_file = Button(root_CSV, text='upload file', height=1, width=18, bg="turquoise", command=lambda :uplodeFile(root))
+   #b_file.grid(row=3, column=1)
    b_file.pack(side="top", padx=5, pady=5, fill="none", expand=True)
+
+   # L_file = Label(root_CSV, bg="gray94", text="file", font="Helvetica 10 bold italic")
+   # #L_file.pack(side="left", expand=True, anchor="w")
+   # L_file.grid(row=3, column=2)
 
    T = Text(root_CSV, height=10, width=80, bg="snow")
    T.pack( padx=5, pady=5, fill="none", expand=True)
@@ -307,11 +314,11 @@ def main(root):
    progress = ttk.Progressbar(root_CSV, orient=HORIZONTAL, length=100, mode='determinate')
    progress.pack()
 
-   b_choose = Button(root_CSV, text='Login', height=3, width=15, bg="turquoise", command=(lambda arr=ents: openNewWindow(root)))
-   b_choose.pack(side="left", padx=5, pady=5, fill="none", expand=True)
+   # b_choose = Button(root_CSV, text='Login', height=3, width=15, bg="turquoise", command=(lambda arr=ents: openNewWindow(root)))
+   # b_choose.pack(side="left", padx=5, pady=5, fill="none", expand=True)
 
-   b_exit = Button(root_CSV, text='Quit', height=3, width=15, bg="turquoise", command= lambda:root_CSV.destroy())
-   b_exit.pack(side="left", padx=5, pady=5, fill="none", expand=True)
+   b_exit = Button(root_CSV, text='Quit', height=2, width=10, bg="turquoise", command= lambda:root_CSV.destroy())
+   b_exit.pack(side="top", padx=5, pady=5, fill="none", expand=True)
 
    init()
    root_CSV.mainloop()
