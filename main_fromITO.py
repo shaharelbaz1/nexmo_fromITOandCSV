@@ -69,8 +69,10 @@ def orgLink(name):
 
 
 def sendDetails():
+    global encode
     i=0
     j=0
+    passEncode = encode.get()
     for user in users:
         if arr[i].get() == 1:
             PhoneNumber = user.UserPhoneDetails.PhoneNumber
@@ -80,8 +82,13 @@ def sendDetails():
             #org = orgLink(list.get())
             IPserver=IP_in_out.options(getServers_id_ip(user))
 
+            if passEncode==1:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver
+            else:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
+
             #TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' +IPserver
+
             #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             #sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
@@ -114,8 +121,10 @@ def sendLink():
         i=i+1
 
 def sendBoth():
+    global encode
     i = 0
     j = 0
+    passEncode = encode.get()
     for user in users:
         if arr[i].get() == 1:
             PhoneNumber = user.UserPhoneDetails.PhoneNumber
@@ -127,13 +136,14 @@ def sendBoth():
             org = orgLink(list.get())
             # IPserver=IP_in_out.options(getServers_id_ip(user))
 
-            msg1 = "Download from here: " + org
+            if passEncode==1:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver +"&url=" +org
+            else:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver +"&url=" +org
 
             # TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' + IPserver
             # msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg1)
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg2)
+            sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             # sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
 
             L_canvSend.config(text="send %s/%s" % (j + 1, count1))
@@ -236,7 +246,7 @@ class openNewWindow(tk.Toplevel):
         progress['value'] = 20
         root_ITO.update_idletasks()
 
-        global arr, b_selectAll, x
+        global arr, b_selectAll, x, encode
         global users
         global L_canvSelection, L_canvSend, count1
         arr = {}
@@ -283,11 +293,15 @@ class openNewWindow(tk.Toplevel):
         checkButtons = []
         try:
             x= tk.IntVar()
+            encode= tk.IntVar()
             b_selectAll = tk.Checkbutton(self, text='select all', variable=x,font = "Helvetica 10 bold italic",command=lambda arr=checkButtons: selectAll(checkButtons))
             b_selectAll.pack(side="top", anchor="w")
 
             L_canvSelection = Label(self, bg="gray94", text="", font="Helvetica 10 bold italic")
             L_canvSelection.pack(side="top", expand=True, anchor="w")
+
+            b_encodePass = tk.Checkbutton(self, text='encode password', variable=encode, font="Helvetica 10 bold italic")
+            b_encodePass.pack(side="top", anchor="w")
 
             L_canvSend = Label(self, bg="gray94", text="", font="Helvetica 10 bold italic")
             L_canvSend.pack(side="bottom", expand=True, anchor="w")
@@ -339,8 +353,6 @@ def main(root):
    global arr, b_selectAll, x
    global users
    global T_canvSelection, T_canvSend, count1
-   printToXml=False
-   IsExportObj=False
    root_ITO = Tk()
 
    root_ITO.wm_title("Mobile Tornado")

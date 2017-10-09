@@ -18,6 +18,7 @@ if __name__ == '__main__':
    IsExportObj=False
    root = Tk()
 
+
    root.wm_title("Mobile Tornado")
    root.iconbitmap(resource_path("images\mobiletornado_icon.ico"))
 

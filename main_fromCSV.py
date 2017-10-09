@@ -73,8 +73,10 @@ def orgLink(name):
     if name == 'Vodacom': return organizationFile.Vodacom
 
 def sendDetails():
-    i=0
-    j=0
+    global encode
+    i = 0
+    j = 0
+    passEncode = encode.get()
     for user in users:
         if arr[i].get() == 1:
             PhoneNumber = user[0]
@@ -85,8 +87,12 @@ def sendDetails():
             #IPserver=IP_in_out.options(user[3])
             IPserver = user[3]
 
-            #TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' +IPserver
+
+            if passEncode==1:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver
+            else:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
+
             #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
             sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             #sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
@@ -116,8 +122,10 @@ def sendLink():
         i=i+1
 
 def sendBoth():
+    global encode
     i = 0
     j = 0
+    passEncode = encode.get()
     for user in users:
         if arr[i].get() == 1:
             PhoneNumber = user[0]
@@ -130,13 +138,12 @@ def sendBoth():
             org = orgLink(list.get())
             # IPserver=IP_in_out.options(getServers_id_ip(user))
 
-            msg1 = "Download from here: " + org
+            if passEncode==1:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver +"&url=" +org
+            else:
+                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver +"&url=" +org
 
-            # TWOmsg = "Download from here: "  + org #+ "*userName: " + name1 + "\npassword: " + password + "\nserver:" +IPserver+ " "
-            msg2 = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + base64.b64encode(password) + '&server=' + IPserver
-            # msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg1)
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg2)
+            sendSMS.send(api_key, api_secret, PhoneNumber, msg)
             # sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
 
             L_canvSend.config(text="send %s/%s" % (j + 1, count1))
@@ -150,7 +157,7 @@ class openNewWindow(tk.Toplevel):
     def __init__(self, parent):
         global arr, b_selectAll, x
         global users
-        global L_canvSend, count1, L_canvSelection
+        global L_canvSend, count1, L_canvSelection, encode
         T.insert(END, "Please wait...\n")
         T.update_idletasks()
 
@@ -189,12 +196,16 @@ class openNewWindow(tk.Toplevel):
 
         checkButtons = []
         x = tk.IntVar()
+        encode = tk.IntVar()
         b_selectAll = tk.Checkbutton(self, text='select all', variable=x, font="Helvetica 10 bold italic",
                                      command=lambda arr=checkButtons: selectAll(checkButtons))
         b_selectAll.pack(side="top", anchor="w")
 
         L_canvSelection = Label(self, bg="gray94", text="", font = "Helvetica 10 bold italic")
         L_canvSelection.pack(side="top",expand=True, anchor="w")
+
+        b_encodePass = tk.Checkbutton(self, text='encode password', variable=encode, font="Helvetica 10 bold italic")
+        b_encodePass.pack(side="top", anchor="w")
 
         L_canvSend = Label(self, bg="gray94", text="", font="Helvetica 10 bold italic")
         L_canvSend.pack(side="bottom", expand=True, anchor="w")
