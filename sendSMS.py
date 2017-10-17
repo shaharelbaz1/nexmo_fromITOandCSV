@@ -9,7 +9,7 @@ def send(api_key, api_secret, PhoneNumber, msg):
         'api_key': api_key,
         'api_secret': api_secret,
         'to': PhoneNumber,#'972547807312', #PhoneNumber,#'972504204785', #PhoneNumber
-        'from': 'MobileTornado',
+        'from': 'MTnexmo',
         'text': msg,#'Hello from Nexmo' #msg
     }
 
@@ -29,6 +29,8 @@ def send(api_key, api_secret, PhoneNumber, msg):
         for message in messages:
             if message["status"] == "0":
                 print "success"
+                return 1
     else:
         # Check the errors
         print "unexpected http {code} response from nexmo api".response.code
+    return 0

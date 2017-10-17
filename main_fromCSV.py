@@ -12,24 +12,33 @@ import main
 import os
 import base64
 
+fields = 'api_key', 'api_secret'
+
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 def uplodeFile(root):
     global file, b_file
-    filesName = askopenfilename()
-    file_path = filesName
-    if (file_path == ""):
-        sys.exit(0)
-    file = filesName
-    # L_file=Label(root_CSV, bg="gray94", text="file", font = "Helvetica 10 bold italic")
-    # L_file.pack(side="top",expand=True, anchor="w")
-    b_file.config(text=file, width=40)
-    T.insert(END,'file upload\n')
-    openNewWindow(root)
+    init()
+    if api_key == '':
+        emptyApi_key.pack(side="right", expand=YES, fill='none')
+    elif api_secret == '':
+        emptyApi_secret.pack(side="right", expand=YES, fill='none')
+    else:
+        filesName = askopenfilename()
+        file_path = filesName
+        if (file_path == ""):
+            sys.exit(0)
+        file = filesName
+        # L_file=Label(root_CSV, bg="gray94", text="file", font = "Helvetica 10 bold italic")
+        # L_file.pack(side="top",expand=True, anchor="w")
+        b_file.config(text=file, width=40)
+        T.insert(END,'file upload\n')
+        openNewWindow(root)
 
 def selectAll(checkButtons):
     global x
@@ -40,7 +49,6 @@ def selectAll(checkButtons):
         for check in checkButtons:
             check.deselect()
     countSelection()
-
 
 def countSelection():
     global b_selectAll, count1, L_canvSelection
@@ -72,92 +80,150 @@ def orgLink(name):
     if name == 'Telus': return organizationFile.Telus
     if name == 'Vodacom': return organizationFile.Vodacom
 
+######send SMS function
 def sendDetails():
     global encode
     i = 0
     j = 0
-    passEncode = encode.get()
-    for user in users:
-        if arr[i].get() == 1:
-            PhoneNumber = user[0]
-            userNameSIP = user[1]
+    send=0
+    if count1==0:
+        L_canvSend.config(text="please select users", fg='red')
+        L_canvSend.update_idletasks()
+    else:
+        passEncode = encode.get()
+        for user in users:
+            if arr[i].get() == 1:
+                PhoneNumber = user[0]
+                userNameSIP = user[1]
 
-            password = user[2]
+                password = user[2]
 
-            #IPserver=IP_in_out.options(user[3])
-            IPserver = user[3]
+                #IPserver=IP_in_out.options(user[3])
+                IPserver = user[3]
 
 
-            if passEncode==1:
-                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver
-            else:
-                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
+                if passEncode==1:
+                    msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver
+                else:
+                    msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver
 
-            #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg)
-            #sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
+                #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
+                success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
+                send = send + success
 
-            L_canvSend.config(text="send %s/%s" % (j + 1, count1))
-            L_canvSend.update_idletasks()
-            j = j + 1
+                L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
+                L_canvSend.update_idletasks()
+                j = j + 1
 
-        i=i+1
+            i = i + 1
+        L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
+        L_canvSend.update_idletasks()
 
 def sendLink():
     i=0
     j=0
-    for user in users:
-        if arr[i].get() == 1:
-            PhoneNumber = user[0]
-            org = orgLink(list.get())
-            #IPserver=IP_in_out.options(getServers_id_ip(user))
+    send=0
+    if count1==0:
+        L_canvSend.config(text="please select users", fg='red')
+        L_canvSend.update_idletasks()
+    else:
+        for user in users:
+            if arr[i].get() == 1:
+                PhoneNumber = user[0]
+                org = orgLink(list.get())
+                #IPserver=IP_in_out.options(getServers_id_ip(user))
 
-            msg = "Download from here: "  + org
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg)
+                msg = "Download from here: "  + org
+                success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
+                send = send + success
 
-            L_canvSend.config(text = "send %s/%s" % (j+1, count1))
-            L_canvSend.update_idletasks()
-            j=j+1
+                L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
+                L_canvSend.update_idletasks()
+                j = j + 1
 
-        i=i+1
+            i = i + 1
+        L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
+        L_canvSend.update_idletasks()
 
 def sendBoth():
     global encode
     i = 0
     j = 0
-    passEncode = encode.get()
-    for user in users:
-        if arr[i].get() == 1:
-            PhoneNumber = user[0]
-            userNameSIP = user[1]
+    send=0
+    if count1==0:
+        L_canvSend.config(text="please select users", fg='red')
+        L_canvSend.update_idletasks()
+    else:
+        passEncode = encode.get()
+        for user in users:
+            if arr[i].get() == 1:
+                PhoneNumber = user[0]
+                userNameSIP = user[1]
 
-            password = user[2]
+                password = user[2]
 
-            #IPserver = IP_in_out.options(user[3])
-            IPserver = user[3]
-            org = orgLink(list.get())
-            # IPserver=IP_in_out.options(getServers_id_ip(user))
+                #IPserver = IP_in_out.options(user[3])
+                IPserver = user[3]
+                org = orgLink(list.get())
+                # IPserver=IP_in_out.options(getServers_id_ip(user))
 
-            if passEncode==1:
-                msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver +"&url=" +org
-            else:
-                msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver +"&url=" +org
+                if passEncode==1:
+                    msg = 'getwml.aspx?uname=' + userNameSIP + '&passs=' + base64.b64encode(password) + '&server=' + IPserver +"&url=" +org
+                else:
+                    msg = 'getwml.aspx?uname=' + userNameSIP + '&pass=' + password + '&server=' + IPserver +"&url=" +org
 
-            sendSMS.send(api_key, api_secret, PhoneNumber, msg)
-            # sendSMS.send(api_key, api_secret, PhoneNumber, TWOmsg)
+                success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
+                send = send + success
 
-            L_canvSend.config(text="send %s/%s" % (j + 1, count1))
-            L_canvSend.update_idletasks()
-            j = j + 1
+                L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
+                L_canvSend.update_idletasks()
+                j = j + 1
 
-        i = i + 1
+            i = i + 1
+        L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
+        L_canvSend.update_idletasks()
+
+def init():
+    global api_key, api_secret
+    api_key =ents[0][1].get()
+    api_secret = ents[1][1].get()
+
+def click_apiKey(event):
+    emptyApi_key.pack_forget()
+def click_secretKey(event):
+    emptyApi_secret.pack_forget()
+
+def makeform(root, fields):
+    global ent_api_key, ent_api_secret, emptyApi_secret, emptyApi_key
+    entries = []
+
+    for field in fields:
+      row = Frame(root)
+      lab = Label(row, width=15, text=field, anchor='w')
+      ent = Entry(row)
+
+      if field == 'api_key':
+          emptyApi_key = Label(row, width=15, text="api key is empty", anchor='w', fg='red')
+          ent.bind("<Button-1>", click_apiKey)
+      if field == 'api_secret':
+          emptyApi_secret = Label(row, width=15, text="api secret is empty", anchor='w', fg='red')
+          ent.bind("<Button-1>", click_secretKey)
+
+      row.pack(side='top', fill=X, padx=5, pady=5)
+      lab.pack(side='left')
+      ent.pack(side='left', expand=YES, fill=X)
+      if field == 'api_key': ent.insert(0, "b3acf11d")
+      if field == 'api_secret': ent.insert(0, "4ac296008dad0172")
+      entries.append((field, ent))
+    return entries
 
 class openNewWindow(tk.Toplevel):
 
     def __init__(self, parent):
         global arr, b_selectAll, x
         global users
-        global L_canvSend, count1, L_canvSelection, encode
+        global L_canvSend, count1, L_canvSelection, encode, L_canvSendSuccess
+        count1 = 0
         T.insert(END, "Please wait...\n")
         T.update_idletasks()
 
@@ -168,7 +234,7 @@ class openNewWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, parent)
 
         self.title('choose users')
-        self.iconbitmap((resource_path("images\mobiletornado_icon.ico")))
+        self.iconbitmap(resource_path("images\MobilTornado_splash_image_icon.ico"))
         self.geometry('400x600')
 
         vscrollbar = tk.Scrollbar(self)
@@ -225,15 +291,15 @@ class openNewWindow(tk.Toplevel):
                         checkButtons.append(check)
                         user=[]
 
-                        prefix = row[4]
-                        number = row[5]
+                        prefix = row[4].replace(' ', '')
+                        number = row[5].replace(' ', '')
                         user.append(prefix + number)
 
-                        username = row[6]
+                        username = row[6].replace(' ', '')
                         user.append(username)
-                        password = row[1]
+                        password = row[1].replace(' ', '')
                         user.append(password)
-                        server = row[16]
+                        server = row[16].replace(' ', '')
                         user.append(server)
 
                         users.append(user)
@@ -243,7 +309,7 @@ class openNewWindow(tk.Toplevel):
                                     command=sendLink)
                 b_sendLink.pack(side="top", padx=0, pady=0, fill="none",anchor= "w", expand=True)
 
-                b_sendDetails = Button(self, text='send SMS\nwith user details', height=3, width=15, bg="turquoise",
+                b_sendDetails = Button(self, text='send SMS\nwith user credentials', height=3, width=15, bg="turquoise",
                                        command=sendDetails)
                 b_sendDetails.pack(side="top", padx=0, pady=0, fill="none",anchor= "w", expand=True)
 
@@ -257,41 +323,20 @@ class openNewWindow(tk.Toplevel):
 
                 self.update()
                 c.config(scrollregion=c.bbox("all"))
-
+            progress['value'] = 100
         except:
             c.create_text(20, 90, anchor='nw', text='Error with CSV', font = "Helvetica 10 bold italic")
-        progress['value'] = 100
+            progress['value'] = 0
 
 
-def init():
-    global api_key, api_secret
-    api_key =ents[0][1].get()
-    api_secret = ents[1][1].get()
-
-fields = 'api_key', 'api_secret'
-
-def makeform(root, fields):
-    global ent_api_key, ent_api_secret
-    entries = []
-
-    for field in fields:
-      row = Frame(root)
-      lab = Label(row, width=15, text=field, anchor='w')
-      ent = Entry(row)
-      row.pack(side=TOP, fill=X, padx=5, pady=5)
-      lab.pack(side=LEFT)
-      ent.pack(side=RIGHT, expand=YES, fill=X)
-      if field == 'api_key': ent.insert(0, "02d8fb3c")
-      if field == 'api_secret': ent.insert(0, "06717f740e4cd864")
-      entries.append((field, ent))
-    return entries
+        root_CSV.mainloop()
 
 def main(root):
    global list, ent, T, progress, ents, root_CSV, file,b_file
    root_CSV = Tk()
 
    root_CSV.wm_title("Mobile Tornado")
-   root_CSV.iconbitmap((resource_path("images\mobiletornado_icon.ico")))
+   root_CSV.iconbitmap((resource_path("images\MobilTornado_splash_image_icon.ico")))
 
    ents = makeform(root_CSV, fields)
 
@@ -316,7 +361,7 @@ def main(root):
    b_file.pack(side="top", padx=5, pady=5, fill="none", expand=True)
 
    # L_file = Label(root_CSV, bg="gray94", text="file", font="Helvetica 10 bold italic")
-   # #L_file.pack(side="left", expand=True, anchor="w")
+   # L_file.pack(side="top",padx=5, pady=5, fill="none", expand=True, anchor="w")
    # L_file.grid(row=3, column=2)
 
    T = Text(root_CSV, height=10, width=80, bg="snow")
