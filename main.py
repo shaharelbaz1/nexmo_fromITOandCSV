@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import main_fromITO_longSuffix
 import main_fromITO_shortSuffix
 import main_fromCSV
+import main_fromITO_REST
 import os
 
 def resource_path(relative_path):
@@ -35,7 +36,7 @@ if __name__ == '__main__':
 
    panel.pack(side="top", fill="both", expand="yes")
 
-   b_choose = Button(root, text='ITO', height=3, width=15, bg="turquoise", command=lambda: main_fromITO_longSuffix.main(root))
+   b_choose = Button(root, text='ITO', height=3, width=15, bg="turquoise", command=lambda: main_fromITO_REST.main(root))
    b_choose.pack(side="left", padx=5, pady=5, fill="none", expand=True)
 
    b_choose = Button(root, text='CSV', height=3, width=15, bg="turquoise", command=lambda: main_fromCSV.main(root))

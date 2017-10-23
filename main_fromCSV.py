@@ -7,10 +7,10 @@ import IP_in_out
 import organizationFile
 import sys
 import sendSMS
-from tkFileDialog import askopenfilename
-import main
 import os
 import base64
+from tkFileDialog import askopenfilename, askdirectory
+import datetime
 
 fields = 'api_key', 'api_secret'
 
@@ -90,16 +90,19 @@ def sendDetails():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' %(path,datetime.datetime.now().date()), "w")
+
         passEncode = encode.get()
         for user in users:
             if arr[i].get() == 1:
-                PhoneNumber = user[0]
-                userNameSIP = user[1]
+                PhoneNumber = user[1]
+                userNameSIP = user[2]
 
-                password = user[2]
+                password = user[3]
 
                 #IPserver=IP_in_out.options(user[3])
-                IPserver = user[3]
+                IPserver = user[4]
 
 
                 if passEncode==1:
@@ -109,6 +112,10 @@ def sendDetails():
 
                 #msg2 = userName.decode('UTF-8') + userNameSIP + "\n"+passw.decode('UTF-8') + password + "\n"+server.decode('UTF-8') + IPserver + "\n end"
                 success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
+                if success==1:
+                    fd.write(user[0]+'  yes\n')
+                else:
+                    fd.write(user[0] + '  no\n')
                 send = send + success
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
@@ -118,6 +125,7 @@ def sendDetails():
             i = i + 1
         L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def sendLink():
     i=0
@@ -127,15 +135,21 @@ def sendLink():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' % (path, datetime.datetime.now().date()), "w")
         for user in users:
             if arr[i].get() == 1:
-                PhoneNumber = user[0]
+                PhoneNumber = user[1]
                 org = orgLink(list.get())
                 #IPserver=IP_in_out.options(getServers_id_ip(user))
 
                 msg = "Download from here: "  + org
                 success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
                 send = send + success
+                if success==1:
+                    fd.write(user[0]+'  yes\n')
+                else:
+                    fd.write(user[0] + '  no\n')
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
                 L_canvSend.update_idletasks()
@@ -144,6 +158,7 @@ def sendLink():
             i = i + 1
         L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def sendBoth():
     global encode
@@ -154,13 +169,15 @@ def sendBoth():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' % (path, datetime.datetime.now().date()), "w")
         passEncode = encode.get()
         for user in users:
             if arr[i].get() == 1:
-                PhoneNumber = user[0]
-                userNameSIP = user[1]
+                PhoneNumber = user[1]
+                userNameSIP = user[2]
 
-                password = user[2]
+                password = user[3]
 
                 #IPserver = IP_in_out.options(user[3])
                 IPserver = user[3]
@@ -174,6 +191,11 @@ def sendBoth():
 
                 success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
                 send = send + success
+                if success==1:
+                    fd.write(user[0]+'  yes\n')
+                else:
+                    fd.write(user[0] + '  no\n')
+
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
                 L_canvSend.update_idletasks()
@@ -182,6 +204,7 @@ def sendBoth():
             i = i + 1
         L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def init():
     global api_key, api_secret
@@ -290,6 +313,8 @@ class openNewWindow(tk.Toplevel):
                         check.pack(side="top", anchor="w")
                         checkButtons.append(check)
                         user=[]
+
+                        user.append(displayName)
 
                         prefix = row[4].replace(' ', '')
                         number = row[5].replace(' ', '')

@@ -9,6 +9,8 @@ import sys
 import sendSMS
 import os
 import base64
+from tkFileDialog import askopenfilename, askdirectory
+import datetime
 
 reload(sys)
 sys.setdefaultencoding("ISO-8859-1")\
@@ -21,7 +23,7 @@ global list
 
 
 long_suffix = ':8998/PTX/Provisioning?wsdl'
-short_suffix = ':8080/MTWebShortProvisioning/MTSProvisioning.asmx?wsdl'
+short_suffix = ':/MTWebShortProvisioning/MTSProvisioning.asmx?wsdl'
 
 fields = 'url','org id','username', "password", 'api_key', 'api_secret'
 
@@ -126,6 +128,8 @@ def sendDetails():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' % (path, datetime.datetime.now().date()), "w")
         passEncode = encode.get()
         for user in users:
             if arr[i].get() == 1:
@@ -143,6 +147,10 @@ def sendDetails():
 
                 success= sendSMS.send(api_key, api_secret, PhoneNumber, msg)
                 send= send+success
+                if success==1:
+                    fd.write(user.Details.DisplayName.encode('utf-8')+'  yes\n')
+                else:
+                    fd.write(user.Details.DisplayName.encode('utf-8') + '  no\n')
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
                 L_canvSend.update_idletasks()
@@ -151,6 +159,7 @@ def sendDetails():
             i=i+1
         L_canvSend.config(text="success %s/%s               " % (send, count1),fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def sendLink():
     i=0
@@ -160,6 +169,8 @@ def sendLink():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' % (path, datetime.datetime.now().date()), "w")
         for user in users:
             if arr[i].get() == 1:
                 PhoneNumber = user.UserPhoneDetails.PhoneNumber
@@ -172,6 +183,10 @@ def sendLink():
                 msg = "Download from here: "  + org
                 success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
                 send = send + success
+                if success==1:
+                    fd.write(user.Details.DisplayName.encode('utf-8')+'  yes\n')
+                else:
+                    fd.write(user.Details.DisplayName.encode('utf-8') + '  no\n')
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
                 L_canvSend.update_idletasks()
@@ -180,6 +195,7 @@ def sendLink():
             i = i + 1
         L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def sendBoth():
     global encode
@@ -190,6 +206,8 @@ def sendBoth():
         L_canvSend.config(text="please select users", fg='red')
         L_canvSend.update_idletasks()
     else:
+        path = askdirectory()
+        fd = open('%s/sendLog_%s' % (path, datetime.datetime.now().date()), "w")
         passEncode = encode.get()
         for user in users:
             if arr[i].get() == 1:
@@ -209,6 +227,10 @@ def sendBoth():
 
                 success = sendSMS.send(api_key, api_secret, PhoneNumber, msg)
                 send = send + success
+                if success==1:
+                    fd.write(user.Details.DisplayName.encode('utf-8')+'  yes\n')
+                else:
+                    fd.write(user.Details.DisplayName.encode('utf-8') + '  no\n')
 
                 L_canvSend.config(text="send %s/%s               " % (j + 1, count1), fg='black')
                 L_canvSend.update_idletasks()
@@ -217,6 +239,7 @@ def sendBoth():
             i = i + 1
         L_canvSend.config(text="success %s/%s               " % (send, count1), fg='black')
         L_canvSend.update_idletasks()
+        fd.close()
 
 def init():
     global url, org_id, username, password, api_key, api_secret
